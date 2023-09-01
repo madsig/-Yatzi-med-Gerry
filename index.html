@@ -9,45 +9,46 @@
 
 <body>
     <div id="app"></div>
+    <p>
+        En fin utfording er å kjenne igjen yatzy-kombinasjoner ut fra en array på 5 terningverdier<br />
+    <ul>
+        <li>ett par</li>
+        <li>to par</li>
+        <li>tre like</li>
+        <li>fire like</li>
+
+        <li>hus (et par, 3 like)</li>
+        <li>liten straight (1-5)</li>
+        <li>stor straigth (2-6)</li>
+
+        <li>sjanse - catch-all</li>
+
+        <li>yatzy (alle like)</li>
+
+    </ul>
+    første triks er å lage frekvenstabell og så analysere den
+    <ul>
+        1. 5 terninger, verdier - Donion Rings.<br/>
+        2. Gå igjennom alle verdiene finne like, hus, etc.<br/>
+        3. Frekvenstabell for å sjekke resultat.<br/>
+    </ul>
+    </p>
 
     <script>
-        /*
-        En fin utfording er å kjenne igjen yatzy-kombinasjoner ut fra en array på 5 terningverdier
-
-        ett par 
-        to par
-        tre like
-        fire like
-
-        hus (et par, 3 like)
-        liten straight (1-5)
-        stor straigth (2-6)
-
-        sjanse - catch-all
-
-        yatzy (alle like)
-
-        første triks er å lage frekvenstabell og så analysere den
-        */
-
-        /*
-        1. 5 terninger, verdier - Donion Rings.
-        2. Gå igjennom alle verdiene finne like, hus, etc. 
-        3. Frekvenstabell for å sjekke resultat.
-        */
-
-
-       let diceAmount = 5;
-        let result = rollDice();
+        //model
+        let diceAmount = 5;
+        let roll = [1, 1, 3, 3, 3]//rollDice();
         let frequencyTable = [];
 
+        //view
         show();
         function show() {
             let HTML = '';
+            let result = checkRoll();
             HTML = /*HTML*/`
-                <div>Terninger: ${result}</div>
-                <div>Resultat: ${checkRoll()}
+                <div>Terninger: ${roll}</div>
                 <div>Frekvenstabell: ${frequencyTable}</div>
+                <div>Resultat: ${result}
             `
             document.getElementById('app').innerHTML = HTML;
         }
@@ -62,70 +63,42 @@
         }
 
         function checkRoll() {
-            frequencyTable = new Array(diceAmount).fill(0);
-            for (let die of result) {
+            frequencyTable = new Array(diceAmount + 1).fill(0);
+            for (let die of roll) {
                 frequencyTable[die - 1]++;
             }
-            console.log("FT: "+frequencyTable);
+            console.log("FT: " + frequencyTable);
             return checkResult(frequencyTable);
         }
 
-
         function checkResult(array) {
-            if (array.includes(5)) {
-                return "Yatzy!";
-            } else if (checkStraight(array)) {
-                return result.includes(6) ? 'Stor straigth' : 'Liten straigth';
-            }
+            //Yatzy
+            if (array.includes(5)) return "Yatzy!";
+            //Straight
+            if (checkStraightPair(array, 1, 'straight')) return roll.includes(6) ? 'Stor straigth' : 'Liten straigth';
             //Hus
-            if (checkHouse(array)) {
-                return "Hus";
-            } else if (array.includes(4)) {
-                return '4 like';
-            } else if (checkPairs(array) == "2 par") {
-                return ('2 par');
-            } else if (array.includes(3)) {
-                return '3 like';
-            } else if (checkPairs(array) == "1 par") {
-               return '1 par';
-            }
+            if (array.includes(2) && array.includes(3)) return "Hus";
+            //4 like
+            else if (array.includes(4)) return '4 like';
+            //2par
+            else if (checkStraightPair(array, 2, '2pair')) return ('2 par');
+            //3 like
+            else if (array.includes(3)) return '3 like';
+            //1 par
+            else if (array.includes(2)) return '1 par';
+            //Sjanse
             return 'Sjanse';
         }
-        function checkHouse(arr) {
-            let count = 0;
-            for (let i of arr) {
-                if (i == 3) {
-                    count++;
-                }
-            }
-            if (count==2 || arr.includes(2) && arr.includes(3)){
-                return true;
-            }
-        }
 
-        function checkPairs(arr) {
-            let count = 0;
-            for (let i of arr) {
-                if (i == 2) {
-                    count++;
-                }
-            }
-            if (count >= 2) {
-                return "2 par"
-            } else if (count == 1) {
-                return "1 par";
-            }
-        }
+        function checkStraightPair(arr, num, check) {
+            let count = arr.reduce((acc, val) => (val === num ? acc + 1 : acc), 0);
+            console.log(count);
 
-        function checkStraight(arr) {
-            let count = 0;
-            for (let i of arr) {
-                if (i == 1) {
-                    count++
-                }
-            }
-            if (count == 5) {
-                return true;
+            switch (check) {
+                case '2pair':
+                    if (count == 2) return true;
+                case 'straight':
+                    if (count == 5) return true;
             }
         }
     </script>
